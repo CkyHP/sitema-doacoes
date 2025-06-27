@@ -6,75 +6,9 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.decorators import action
 from rest_framework.response import Response
-# Create your views here.
-
-class DoadorViewSet(viewsets.ModelViewSet):
-    queryset = Doador.objects.all()
-    serializer_class = DoadorSerializer
-
-class DoadorLoginView(APIView):
-    def post(self, request):
-        telefone = request.data.get('telefone')
-        senha = request.data.get('senha')
-        try:
-            doador = Doador.objects.get(telefone=telefone, senha=senha)
-            serializer = DoadorSerializer(doador)
-            return Response(serializer.data)
-        except Doador.DoesNotExist:
-            return Response({'error': 'Telefone ou senha inválidos.'}, status=status.HTTP_400_BAD_REQUEST)
-
-class AlimentoViewSet(viewsets.ModelViewSet):
-    queryset = Alimento.objects.all()
-    serializer_class = AlimentoSerializer
-
-    @action(detail=False, methods=['get'])
-    def necessarios(self, request):
-        alimentos = self.queryset.filter(quantidade_necessaria__gt = 0).order_by('quantidade_necessaria')
-        serializer = self.get_serializer(alimentos, many=True)
-        print(serializer.data)
-        return Response(serializer.data)
-
-class DoacaoViewSet(viewsets.ModelViewSet):
-    queryset = Doacao.objects.all()
-    serializer_class = DoacaoSerializer
-    
-    def atualizar_estoque(self, doacao):
-        # Update the available quantity of the food item
-        alimento = doacao.alimento
-        alimento.quantidade_disponivel += doacao.quantidade
-        alimento.quantidade_necessaria -= doacao.quantidade
-        alimento.save()
-
-    
-    def perform_create(self, serializer):
-        # Automatically set the doador based on the request user or other logic
-        # This is a placeholder; actual implementation may vary
-        # doador = self.request.user.doador  # Assuming user has a related Doador instance
-        doacao = serializer.save()
-        self.atualizar_estoque(doacao)
-
-
-from rest_framework.decorators import action
 from django.db import transaction
 
-class CestaViewSet(viewsets.ModelViewSet):
-    queryset = Cesta.objects.all()
-    serializer_class = CestaSerializer
-
-    @action(detail=False, methods=['post'])
-    @transaction.atomic
-    def atualizar_cestas(self, request):
-        """
-        Espera receber:
-        [
-            {"tipo": "Básica", "quantidade": 2},
-            {"tipo": "Miserabilidade", "quantidade": 1},
-            ...
-        ]
-        """
-        dados = request.data
-
-        ITENS_CESTA = {
+ITENS_CESTA = {
             "Cesta Padrão": [
                 {"nome": "Arroz", "quantidade": 5, "tipo": "grão", "unidade": "kg"},
                 {"nome": "Feijão", "quantidade": 2, "tipo": "grão", "unidade": "kg"},
@@ -137,7 +71,7 @@ class CestaViewSet(viewsets.ModelViewSet):
                 {"nome": "Fubá", "quantidade": 1, "tipo": "farinha", "unidade": "kg"},
                 {"nome": "Farinha de trigo", "quantidade": 1, "tipo": "farinha", "unidade": "kg"},
                 {"nome": "Farinha de mandioca", "quantidade": 1, "tipo": "farinha", "unidade": "kg"},
-                {"nome": "Café", "quantidade": 0.5, "tipo": "bebida", "unidade": "meio kg"},
+                {"nome": "Café", "quantidade": 1, "tipo": "bebida", "unidade": "meio kg"},
                 {"nome": "Sal", "quantidade": 1, "tipo": "tempero", "unidade": "kg"},
                 {"nome": "Miojo", "quantidade": 2, "tipo": "massa", "unidade": "pacote"},
                 {"nome": "Tempero para feijão", "quantidade": 1, "tipo": "tempero", "unidade": "pacote"},
@@ -179,7 +113,7 @@ class CestaViewSet(viewsets.ModelViewSet):
                 {"nome": "Fubá", "quantidade": 1, "tipo": "farinha", "unidade": "kg"},
                 {"nome": "Farinha de trigo", "quantidade": 1, "tipo": "farinha", "unidade": "kg"},
                 {"nome": "Farinha de mandioca", "quantidade": 1, "tipo": "farinha", "unidade": "kg"},
-                {"nome": "Café", "quantidade": 0.5, "tipo": "bebida", "unidade": "meio kg"},
+                {"nome": "Café", "quantidade": 1, "tipo": "bebida", "unidade": "meio kg"},
                 {"nome": "Sal", "quantidade": 1, "tipo": "tempero", "unidade": "kg"},
                 {"nome": "Óleo", "quantidade": 1, "tipo": "oleo", "unidade": "unidade"},
                 {"nome": "Goiabada", "quantidade": 1, "tipo": "doce", "unidade": "unidade"},
@@ -200,6 +134,88 @@ class CestaViewSet(viewsets.ModelViewSet):
                 {"nome": "Papel higiênico", "quantidade": 1, "tipo": "higiene", "unidade": "pacote"},
             ],
         }
+
+
+class DoadorViewSet(viewsets.ModelViewSet):
+    queryset = Doador.objects.all()
+    serializer_class = DoadorSerializer
+
+class DoadorLoginView(APIView):
+    def post(self, request):
+        telefone = request.data.get('telefone')
+        senha = request.data.get('senha')
+        try:
+            doador = Doador.objects.get(telefone=telefone, senha=senha)
+            serializer = DoadorSerializer(doador)
+            return Response(serializer.data)
+        except Doador.DoesNotExist:
+            return Response({'error': 'Telefone ou senha inválidos.'}, status=status.HTTP_400_BAD_REQUEST)
+
+class AlimentoViewSet(viewsets.ModelViewSet):
+    queryset = Alimento.objects.all()
+    serializer_class = AlimentoSerializer
+
+    @action(detail=False, methods=['get'])
+    def necessarios(self, request):
+        alimentos = self.queryset.filter(quantidade_necessaria__gt = 0).order_by('quantidade_necessaria')
+        serializer = self.get_serializer(alimentos, many=True)
+        print(serializer.data)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'])
+    def dar_baixa(self, request):
+        """
+        Recebe:
+        {
+            "nome": "Arroz",
+            "quantidade": 2
+        }
+        """
+        nome = request.data.get("nome")
+        quantidade = request.data.get("quantidade")
+        if not nome or not quantidade:
+            return Response({"error": "Nome e quantidade são obrigatórios."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            alimento = Alimento.objects.get(nome=nome)
+            if alimento.quantidade_disponivel < quantidade:
+                return Response({"error": "Estoque insuficiente."}, status=status.HTTP_400_BAD_REQUEST)
+            alimento.quantidade_disponivel -= quantidade
+            alimento.save()
+            return Response({"status": "Baixa realizada com sucesso"})
+        except Alimento.DoesNotExist:
+            return Response({"error": "Alimento não encontrado."}, status=status.HTTP_404_NOT_FOUND)
+
+class DoacaoViewSet(viewsets.ModelViewSet):
+    queryset = Doacao.objects.all()
+    serializer_class = DoacaoSerializer
+    
+    def atualizar_estoque(self, doacao):
+        alimento = doacao.alimento
+        alimento.quantidade_disponivel += doacao.quantidade
+        alimento.quantidade_necessaria -= doacao.quantidade
+        alimento.save()
+
+    
+    def perform_create(self, serializer):
+        doacao = serializer.save()
+        self.atualizar_estoque(doacao)
+
+class CestaViewSet(viewsets.ModelViewSet):
+    queryset = Cesta.objects.all()
+    serializer_class = CestaSerializer
+
+    @action(detail=False, methods=['post'])
+    @transaction.atomic
+    def atualizar_cestas(self, request):
+        """
+        Espera receber:
+        [
+            {"tipo": "Básica", "quantidade": 2},
+            {"tipo": "Miserabilidade", "quantidade": 1},
+            ...
+        ]
+        """
+        dados = request.data
         # Atualiza ou cria as cestas
         necessidades = {}
         tipos_itens = {}
@@ -244,3 +260,47 @@ class CestaViewSet(viewsets.ModelViewSet):
                 cesta.save()
 
         return Response({"status": "Cestas e necessidades atualizadas"})
+    
+    @action(detail=False, methods=['post'])
+    @transaction.atomic
+    def dar_baixa_cesta(self, request):
+        """
+        Recebe:
+        {
+            "tipo": "Cesta Padrão",
+            "alimentos": [
+                {"nome": "Arroz", "quantidade": 5},
+                {"nome": "Feijão", "quantidade": 2},
+                ...
+            ]
+        }
+        Se não enviar "alimentos", usa o padrão da cesta.
+        """
+        tipo = request.data.get("tipo")
+        alimentos_recebidos = request.data.get("alimentos")
+
+     
+        if not tipo or tipo not in ITENS_CESTA:
+            return Response({"error": "Tipo de cesta inválido."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if not alimentos_recebidos:
+            alimentos_recebidos = ITENS_CESTA[tipo]
+
+        erros = []
+        for item in alimentos_recebidos:
+            nome = item["nome"]
+            qtd = item["quantidade"]
+            try:
+                alimento = Alimento.objects.get(nome=nome)
+                if alimento.quantidade_disponivel < qtd:
+                    erros.append(f"Estoque insuficiente para {nome}")
+                else:
+                    alimento.quantidade_disponivel -= qtd
+                    alimento.save()
+            except Alimento.DoesNotExist:
+                erros.append(f"Alimento {nome} não encontrado")
+
+        if erros:
+            return Response({"status": "Baixa parcial", "erros": erros}, status=status.HTTP_207_MULTI_STATUS)
+        return Response({"status": "Baixa realizada com sucesso"})
+    
