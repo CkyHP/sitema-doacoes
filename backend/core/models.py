@@ -16,6 +16,9 @@ class Alimento(models.Model):
     descricao = models.TextField(blank=True, null=True)
     quantidade_necessaria = models.PositiveIntegerField(default=0)
     quantidade_disponivel = models.PositiveIntegerField(default=0)
+    tipo = models.CharField(max_length=20, default='outro')
+    unidade = models.CharField(max_length=20, default='unidade')
+    data_validade = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return self.nome

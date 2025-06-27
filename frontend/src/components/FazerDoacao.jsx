@@ -289,6 +289,7 @@ export default function FazerDoacao() {
                       <input
                         name="data"
                         type="date"
+                        placeholder="Data da doação"
                         value={doacao.data}
                         onChange={e => setDoacao({ ...doacao, data: e.target.value })}
                         required

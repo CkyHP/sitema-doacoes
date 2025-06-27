@@ -5,9 +5,14 @@ import AdicionarAlimento from './components/AdicionarAlimento';
 import FazerDoacao from './components/FazerDoacao';
 import ListaNecessarios from './components/ListaNecessarios';
 import SistemaLogin from './components/SistemaLogin';
+import HomePage from './components/HomePage';
 
 function App() {
-  const [autenticado, setAutenticado] = useState(false);
+  const [autenticado, setAutenticado] = useState(() => {
+     return localStorage.getItem('autenticado') === 'true';
+  });
+  
+
   const [mostrarLogin, setMostrarLogin] = useState(false);
 
   function handleIrParaLogin() {
@@ -23,6 +28,10 @@ function App() {
     setAutenticado(false);
     setMostrarLogin(false);
   }
+
+  React.useEffect(() => {
+    localStorage.setItem('autenticado', autenticado ? 'true' : 'false');
+  }, [autenticado]);
 
   return (
     <Router>

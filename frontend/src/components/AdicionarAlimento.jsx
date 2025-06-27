@@ -145,24 +145,23 @@ export default function AdicionarNecessidadePorCesta() {
   const [quantidades, setQuantidades] = useState(
     TIPOS_CESTA.map(() => 0)
   );
-   const [carregando, setCarregando] = useState(true);
+  const [carregando, setCarregando] = useState(true);
 
   useEffect(() => {
-  fetch('http://localhost:8000/cesta/')
-    .then(res => res.json())
-    .then(data => {
-      // data deve ser um array de cestas [{tipo: ..., quantidade: ...}]
-      const novasQuantidades = TIPOS_CESTA.map(cesta => {
-        const encontrada = data.find(c => c.tipo === cesta.nome);
-        return encontrada ? encontrada.quantidade : 0;
+    fetch('http://localhost:8000/cesta/')
+      .then(res => res.json())
+      .then(data => {
+        // data deve ser um array de cestas [{tipo: ..., quantidade: ...}]
+        const novasQuantidades = TIPOS_CESTA.map(cesta => {
+          const encontrada = data.find(c => c.tipo === cesta.nome);
+          return encontrada ? encontrada.quantidade : 0;
+        });
+        setQuantidades(novasQuantidades);
+        setCarregando(false);
       });
-      setQuantidades(novasQuantidades);
-      setCarregando(false);
-    });
-}, []);
+  }, []);
 
-
-    function handleChange(i, value) {
+  function handleChange(i, value) {
     const novo = [...quantidades];
     novo[i] = Number(value);
     setQuantidades(novo);
@@ -189,23 +188,24 @@ export default function AdicionarNecessidadePorCesta() {
     return <div className="text-center mt-8 text-blue-500 text-xl">Carregando...</div>;
   }
 
-
   return (
     <form onSubmit={handleSubmit} className="max-w-xl mx-auto bg-white p-8 rounded-lg shadow space-y-4 mt-8">
       <h2 className="text-2xl font-bold text-blue-500 mb-4 text-center">Necessidade por Cesta</h2>
-      {TIPOS_CESTA.map((cesta, i) => (
-        <div key={cesta.nome} className="mb-4">
-          <label className="block font-semibold mb-1">{cesta.nome}</label>
-          <input
-            type="number"
-            min={0}
-            value={quantidades[i]}
-            onChange={e => handleChange(i, e.target.value)}
-            className="w-full p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
-            placeholder={`Quantidade de ${cesta.nome} para o mês`}
-          />
-        </div>
-      ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        {TIPOS_CESTA.map((cesta, i) => (
+          <div key={cesta.nome} className="flex flex-col items-center bg-slate-50 rounded-lg p-4 shadow-sm">
+            <label className="block font-semibold mb-2 text-center">{cesta.nome}</label>
+            <input
+              type="number"
+              min={0}
+              value={quantidades[i]}
+              onChange={e => handleChange(i, e.target.value)}
+              className="w-24 p-2 border border-slate-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-300 text-center"
+              placeholder={`Qtd.`}
+            />
+          </div>
+        ))}
+      </div>
       <button
         type="submit"
         className="w-full bg-blue-500 text-white font-semibold py-2 rounded hover:bg-blue-600 transition-colors"

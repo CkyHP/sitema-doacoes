@@ -9,7 +9,7 @@ class DoadorSerializer(serializers.ModelSerializer):
 class AlimentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Alimento
-        fields = ['id', 'nome', 'descricao', 'quantidade_necessaria', 'quantidade_disponivel']
+        fields = ['id', 'nome', 'descricao', 'quantidade_necessaria', 'quantidade_disponivel', 'tipo', 'unidade', 'data_validade']
 
 class DoacaoSerializer(serializers.ModelSerializer):
     # doador = DoadorSerializer(read_only=True)
