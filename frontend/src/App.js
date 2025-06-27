@@ -6,6 +6,7 @@ import FazerDoacao from './components/FazerDoacao';
 import ListaNecessarios from './components/ListaNecessarios';
 import SistemaLogin from './components/SistemaLogin';
 import HomePage from './components/HomePage';
+import Lista from './components/Lista';
 
 function App() {
   const [autenticado, setAutenticado] = useState(() => {
@@ -48,7 +49,7 @@ function App() {
             ) : !autenticado && mostrarLogin ? (
               <SistemaLogin onLogin={handleLogin} onVoltar={() => setMostrarLogin(false)} />
             ) : (
-              <ListaNecessarios />
+              <Lista/>
             )
           }
         />

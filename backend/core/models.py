@@ -34,13 +34,13 @@ class Doacao(models.Model):
         return f'Doação de {self.quantidade} por {self.doador.nome} em {self.data}'
     
 TIPO_CESTA = (
-    ('Básica', 'Básica'),
-    ('Especial', 'Especial'),
-    ('Miserabilidade', 'Miserabilidade'),
-    ('Natal', 'Natal'),
+    ('Cesta Padrão', 'Cesta Padrão'),
+    ('Cesta Família com mais crianças', 'Cesta Família com mais crianças'),
+    ('Cesta Família em estado de miserabilidade', 'Cesta Família em estado de miserabilidade'),
+    ('Cesta de Natal', 'Cesta de Natal'),
 )
 
 class Cesta(models.Model):
-    tipo = models.CharField(max_length=20, choices=TIPO_CESTA)
+    tipo = models.CharField(max_length=100, choices=TIPO_CESTA)
     quantidade = models.PositiveIntegerField(default=0)
 
