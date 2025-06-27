@@ -19,7 +19,7 @@ export default function SistemaLogin({ onLogin, onVoltar }) {
     e.preventDefault();
     setCarregando(true);
     
-    // Simula delay de autenticação
+   
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     if (form.email === EMAIL && form.senha === SENHA) {
@@ -37,9 +37,9 @@ export default function SistemaLogin({ onLogin, onVoltar }) {
       }}></div>
       
       <div className="relative w-full max-w-md">
-        {/* Card principal */}
+       
         <div className="bg-white/80 backdrop-blur-lg shadow-2xl rounded-3xl p-8 border border-white/20">
-          {/* Header */}
+         
           <div className="text-center mb-8">
             <div className="w-20 h-20 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
               <LogIn className="w-10 h-10 text-white" />
@@ -51,7 +51,7 @@ export default function SistemaLogin({ onLogin, onVoltar }) {
           </div>
 
           <div className="space-y-6">
-            {/* Campo Email */}
+            
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Mail className="h-5 w-5 text-gray-400" />
@@ -67,7 +67,7 @@ export default function SistemaLogin({ onLogin, onVoltar }) {
               />
             </div>
 
-            {/* Campo Senha */}
+          
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
                 <Lock className="h-5 w-5 text-gray-400" />
@@ -90,14 +90,14 @@ export default function SistemaLogin({ onLogin, onVoltar }) {
               </button>
             </div>
 
-            {/* Mensagem de erro */}
+          
             {erro && (
               <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm animate-pulse">
                 {erro}
               </div>
             )}
 
-            {/* Botão de login */}
+        
             <button
               onClick={handleSubmit}
               disabled={carregando}
@@ -116,7 +116,7 @@ export default function SistemaLogin({ onLogin, onVoltar }) {
               )}
             </button>
 
-            {/* Botão voltar */}
+         
             {onVoltar && (
               <button
                 type="button"
@@ -131,7 +131,7 @@ export default function SistemaLogin({ onLogin, onVoltar }) {
             )}
           </div>
 
-          {/* Credenciais de demo */}
+         
           <div className="mt-8 p-4 bg-blue-50/50 rounded-xl border border-blue-100">
             <p className="text-sm text-blue-600 font-medium mb-2">Credenciais de demonstração:</p>
             <p className="text-xs text-blue-500">Email: admin@gmail.com</p>
@@ -139,7 +139,7 @@ export default function SistemaLogin({ onLogin, onVoltar }) {
           </div>
         </div>
 
-        {/* Elementos decorativos */}
+      
         <div className="absolute -top-4 -right-4 w-24 h-24 bg-gradient-to-r from-pink-400 to-purple-500 rounded-full opacity-20 blur-xl"></div>
         <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-gradient-to-r from-blue-400 to-cyan-500 rounded-full opacity-20 blur-xl"></div>
       </div>
